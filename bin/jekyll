@@ -196,16 +196,18 @@ end
 
 
 # Get source and destination from command line
-case ARGV.size
-  when 0
-  when 1
-    options['destination'] = ARGV[0]
-  when 2
-    options['source']      = ARGV[0]
-    options['destination'] = ARGV[1]
-  else
-    puts "Invalid options. Run `jekyll --help` for assistance."
-    exit(1)
+if false
+	case ARGV.size
+	  when 0
+	  when 1
+	    options['destination'] = ARGV[0]
+	  when 2
+	    options['source']      = ARGV[0]
+	    options['destination'] = ARGV[1]
+	  else
+	    puts "Invalid options. Run `jekyll --help` for assistance."
+	    exit(1)
+	end
 end
 
 options = Jekyll.configuration(options)
@@ -240,7 +242,14 @@ if options['auto']
   dw.add_observer do |*args|
     t = Time.now.strftime("%Y-%m-%d %H:%M:%S")
     puts "[#{t}] regeneration: #{args.size} files changed"
-    site.process
+    begin
+    	site.process
+    rescue => err
+      puts 'Rescued...'
+      puts "\t" + err.to_s
+      puts "\t" + err.inspect.to_s
+      puts "\t" + err.backtrace.join("\n\t")      
+    end
   end
 
   dw.start

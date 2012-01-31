@@ -13,7 +13,8 @@ module Jekyll
         when 'redcarpet'
           begin
             require 'redcarpet'
-            @redcarpet_extensions = @config['redcarpet']['extensions'].map { |e| e.to_sym }
+            @redcarpet_extensions = Hash[@config['redcarpet']['extensions'].map { |e| [e.to_sym, true] }]
+            @redcarpet = Redcarpet::Markdown.new(Redcarpet::Render::SmartyHTML, @redcarpet_extensions)            
           rescue LoadError
             STDERR.puts 'You are missing a library required for Markdown. Please run:'
             STDERR.puts '  $ [sudo] gem install redcarpet'
@@ -88,7 +89,9 @@ module Jekyll
       setup
       case @config['markdown']
         when 'redcarpet'
-          Redcarpet.new(content, *@redcarpet_extensions).to_html
+          html = @redcarpet.render(content.encode('utf-8'))
+          html.gsub!("&#39;", "'")
+          html = Redcarpet::Render::SmartyPants.render html
         when 'kramdown'
           # Check for use of coderay
           if @config['kramdown']['use_coderay']

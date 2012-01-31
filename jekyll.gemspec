@@ -4,15 +4,15 @@ Gem::Specification.new do |s|
   s.rubygems_version = '1.3.5'
 
   s.name              = 'jekyll'
-  s.version           = '0.11.2'
-  s.date              = '2011-12-27'
+  s.version           = '0.11.2.jaap'
+  s.date              = '2012-01-31'
   s.rubyforge_project = 'jekyll'
 
   s.summary     = "A simple, blog aware, static site generator."
   s.description = "Jekyll is a simple, blog aware, static site generator."
 
-  s.authors  = ["Tom Preston-Werner"]
-  s.email    = 'tom@mojombo.com'
+  s.authors  = ["Tom Preston-Werner, with very minor tweaks by Jaap Suter"]
+  s.email    = 'tom@mojombo.com, jekyll-fork@jaapsuter.com'
   s.homepage = 'http://github.com/mojombo/jekyll'
 
   s.require_paths = %w[lib]

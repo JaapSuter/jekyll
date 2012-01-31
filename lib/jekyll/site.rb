@@ -4,7 +4,7 @@ module Jekyll
 
   class Site
     attr_accessor :config, :layouts, :posts, :pages, :static_files,
-                  :categories, :exclude, :include, :source, :dest, :lsi, :pygments,
+                  :categories, :exclude, :include, :leave, :source, :dest, :lsi, :pygments,
                   :permalink_style, :tags, :time, :future, :safe, :plugins, :limit_posts
 
     attr_accessor :converters, :generators
@@ -23,6 +23,7 @@ module Jekyll
       self.pygments        = config['pygments']
       self.permalink_style = config['permalink'].to_sym
       self.exclude         = config['exclude'] || []
+	  self.leave           = config['leave'] || []
       self.include         = config['include'] || []
       self.future          = config['future']
       self.limit_posts     = config['limit_posts'] || nil
@@ -204,9 +205,12 @@ module Jekyll
       end
 
       self.categories.values.map { |ps| ps.sort! { |a, b| b <=> a } }
-      self.tags.values.map { |ps| ps.sort! { |a, b| b <=> a } }
-    rescue Errno::ENOENT => e
-      # ignore missing layout dir
+    rescue Errno::ENOENT => err
+      # ignore missing layout dir - (and everything else, but do log what happened.)
+      puts 'Rescued...'
+      puts "\t" + err.to_s
+      puts "\t" + err.inspect.to_s
+      puts "\t" + err.backtrace.join("\n\t")    
     end
 
     # Remove orphaned files and empty directories in destination.
@@ -236,7 +240,11 @@ module Jekyll
       files.each { |file| dirs << File.dirname(file) }
       files.merge(dirs)
 
-      obsolete_files = dest_files - files
+      obsolete_files = (dest_files - files).reject { |e| 
+        self.leave.include?(File.basename(e)) ||
+        self.leave.include?(File.basename(e).split('/').last + '/') ||
+        self.leave.include?(File.dirname(e).split('/').last + '/')        
+      }
 
       FileUtils.rm_rf(obsolete_files.to_a)
     end
@@ -310,11 +318,13 @@ module Jekyll
     #
     # Returns the Array of filtered entries.
     def filter_entries(entries)
+      expanded_excludes = self.exclude.flat_map { |ex| ::Jaap::Paths.glob(ex).map { |e| File.basename e } }
+    
       entries = entries.reject do |e|
         unless self.include.include?(e)
           ['.', '_', '#'].include?(e[0..0]) ||
           e[-1..-1] == '~' ||
-          self.exclude.include?(e) ||
+          expanded_excludes.include?(e) ||
           File.symlink?(e)
         end
       end
