@@ -4,7 +4,7 @@ module Jekyll
 
   class Site
     attr_accessor :config, :layouts, :posts, :pages, :static_files,
-                  :categories, :exclude, :include, :leave, :source, :dest, :lsi, :pygments,
+                  :categories, :exclude, :ignore, :include, :leave, :source, :dest, :lsi, :pygments,
                   :permalink_style, :tags, :time, :future, :safe, :plugins, :limit_posts
 
     attr_accessor :converters, :generators
@@ -23,7 +23,8 @@ module Jekyll
       self.pygments        = config['pygments']
       self.permalink_style = config['permalink'].to_sym
       self.exclude         = config['exclude'] || []
-	  self.leave           = config['leave'] || []
+      self.ignore          = config['ignore'] || []
+	    self.leave           = config['leave'] || []
       self.include         = config['include'] || []
       self.future          = config['future']
       self.limit_posts     = config['limit_posts'] || nil

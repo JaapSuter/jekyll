@@ -240,8 +240,19 @@ if options['auto']
   dw.glob = globs(source)
 
   dw.add_observer do |*args|
+    ignored = site.ignore.reduce(Set.new) { |a, i| a = a | ::Jaap::Paths.glob(i) }
+  
+    args.reject! do |arg|
+      ignored.include? ::Jaap::Paths.get(arg.path)
+    end
+
+    next if args.empty?
+
     t = Time.now.strftime("%Y-%m-%d %H:%M:%S")
     puts "[#{t}] regeneration: #{args.size} files changed"
+    args.each do |arg|
+      puts "    #{::Jaap::Paths.get(arg.path).gsub ::Jaap::Paths.get, ''}"
+    end
     begin
     	site.process
     rescue => err
